@@ -8,11 +8,15 @@ import {
     SidebarMenuButton,
     SidebarMenuItem
 } from '@/components/ui/sidebar'
+import { useAuth, useClerk } from "@clerk/nextjs"
 import Link from 'next/link'
 
 type Props = {}
 
 const MainSection = (props: Props) => {
+    const { isSignedIn } = useAuth();
+    const clerk = useClerk();
+
     const items = [
         {
             title: 'Home',
@@ -31,7 +35,7 @@ const MainSection = (props: Props) => {
             icon: FlameIcon
         }
     ];
-    
+
     return (
         <SidebarGroup>
             <SidebarContent>
@@ -42,7 +46,12 @@ const MainSection = (props: Props) => {
                                 tooltip={item.title}
                                 asChild
                                 isActive={false}  //TODO: Change to look at current pathname
-                                onClick={() => { }} //TODO: To-do something on click 
+                                onClick={(e) => {
+                                    if (!isSignedIn && item.auth) {
+                                        e.preventDefault();
+                                        return clerk.openSignIn();
+                                    }
+                                }}
                             >
                                 <Link href={item.url} className='flex items-center gap-4'>
                                     <item.icon />
